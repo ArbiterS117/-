@@ -46,17 +46,17 @@ bool RayCast(D3DXVECTOR3 p0, D3DXVECTOR3 p1, D3DXVECTOR3 p2, D3DXVECTOR3 pos0, D
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static ID3D11Buffer					*g_VertexBuffer = NULL;	             // 頂点情報
-static ID3D11Buffer					*g_VertexBuffercircle = NULL;	     // 円頂点情報
-static ID3D11Buffer					*g_VertexBufferLine = NULL;	         // 線頂点情報
-static ID3D11ShaderResourceView		*g_Texture[TEXTURE_MAX] = { NULL };	 // テクスチャ情報
+static ID3D11Buffer			*g_VertexBuffer = NULL;	             // 頂点情報
+static ID3D11Buffer			*g_VertexBuffercircle = NULL;	     // 円頂点情報
+static ID3D11Buffer			*g_VertexBufferLine = NULL;	     // 線頂点情報
+static ID3D11ShaderResourceView		*g_Texture[TEXTURE_MAX] = { NULL };  // テクスチャ情報
 
-static COLLIDER3D				     g_Collider3D[MAX_COLLIDER3D];	     // colliderワーク
-static int						     g_TexNo;					         // テクスチャ番号
+static COLLIDER3D			 g_Collider3D[MAX_COLLIDER3D];	     // colliderワーク
+static int				 g_TexNo;                            // テクスチャ番号
 								     
-static bool                          g_Draw3DCollider = false;
-static bool                          g_isLINESTRIP = true;
-static bool                          g_DrawChaceArea = false;
+static bool                              g_Draw3DCollider = false;
+static bool                              g_isLINESTRIP = true;
+static bool                              g_DrawChaceArea = false;
 
 static char* g_TextureName[] = {
 	"data/TEXTURE/white.jpg",
