@@ -8,7 +8,7 @@
 #include "input.h"
 #include "fade.h"
 #include "sound.h"
-#include "setSprite.h"
+#include "UISprite.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -21,11 +21,26 @@
 #define TEXTURE_HEIGHT_BLOCK		(64)	        // 
 #define TEXTURE_BLOCK_SCALE		    (96)	        // 
 
-
 #define TEXTURE_WIDTH_LOGO			(400)			// ロゴサイズ
 #define TEXTURE_HEIGHT_LOGO			(154)			// 
 
+#define TEXTURE_WIDTH_BTN			(400)			// ボタンサイズ
+#define TEXTURE_HEIGHT_BTN			(90)			// 
+
 #define BLOCK_MOVE_TIME             (TEXTURE_HEIGHT_BLOCK * 2)
+
+#define MAX_UISPRITE                (9)
+
+#define UISPRITE_TITLE             "data/TEXTURE/LOGO1.png"
+#define UISPRITE_B1                "data/TEXTURE/Blue.png"  
+#define UISPRITE_B2                "data/TEXTURE/Gray.png"  
+#define UISPRITE_B3                "data/TEXTURE/Green.png" 
+#define UISPRITE_B4                "data/TEXTURE/Brown.png" 
+#define UISPRITE_B5                "data/TEXTURE/Pink.png"  
+#define UISPRITE_B6                "data/TEXTURE/Purple.png"
+#define UISPRITE_B7                "data/TEXTURE/Yellow.png"
+#define UISPRITE_PRESS_BTN         "data/TEXTURE/pressbutton.png"
+
 
 //*****************************************************************************
 // プロトタイプ宣言
@@ -35,30 +50,11 @@
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static ID3D11Buffer				*g_VertexBuffer = NULL;		// 頂点情報
-static ID3D11ShaderResourceView	*g_Texture[TEXTURE_MAX] = { NULL };	// テクスチャ情報
-
-static char *g_TexturName[] = {
-	"data/TEXTURE/Blue.png",
-	"data/TEXTURE/Gray.png",
-	"data/TEXTURE/Green.png",
-	"data/TEXTURE/Brown.png",
-	"data/TEXTURE/Pink.png",
-	"data/TEXTURE/Purple.png",
-	"data/TEXTURE/Yellow.png",
-	"data/TEXTURE/LOGO1.png",
-	"data/TEXTURE/pressbutton.png"
-};
-
-
-static bool						g_Use;						// true:使っている  false:未使用
-static float					g_w, g_h;					// 幅と高さ
-static D3DXVECTOR3				g_Pos;						// ポリゴンの座標
-static int						g_TexNo;					// テクスチャ番号
+static DX11_UISPRITE  g_UISprite[MAX_UISPRITE]; // UIスプライト情報
 
 // other
 int blockMoveTimer = 0;
-int blocktype = 3;
+int blocktype = 4;  // 1~7 map to g_UISprite[1]~[7]
 int scalesize = TEXTURE_HEIGHT_BLOCK;
 
 bool ti_canInput = true;
@@ -67,39 +63,19 @@ bool ti_canInput = true;
 //=============================================================================
 HRESULT InitTitle(void)
 {
+	LoadUISprite(UISPRITE_TITLE, &g_UISprite[0], TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, SCREEN_CENTER_X, SCREEN_CENTER_Y);
+	LoadUISprite(UISPRITE_B1, &g_UISprite[1], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
+	LoadUISprite(UISPRITE_B2, &g_UISprite[2], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
+	LoadUISprite(UISPRITE_B3, &g_UISprite[3], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
+	LoadUISprite(UISPRITE_B4, &g_UISprite[4], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
+	LoadUISprite(UISPRITE_B5, &g_UISprite[5], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
+	LoadUISprite(UISPRITE_B6, &g_UISprite[6], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
+	LoadUISprite(UISPRITE_B7, &g_UISprite[7], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
+	LoadUISprite(UISPRITE_PRESS_BTN, &g_UISprite[8], TEXTURE_WIDTH_BTN, TEXTURE_HEIGHT_BTN, SCREEN_WIDTH / 2, 380.0f);
+
+	///////////////////////////////////////////////////////////
 	ID3D11Device *pDevice = GetDevice();
 
-	//テクスチャ生成
-	for (int i = 0; i < TEXTURE_MAX; i++)
-	{
-		g_Texture[i] = NULL;
-		D3DX11CreateShaderResourceViewFromFile(GetDevice(),
-			g_TexturName[i],
-			NULL,
-			NULL,
-			&g_Texture[i],
-			NULL);
-	}
-
-
-	// 頂点バッファ生成
-	D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = sizeof(VERTEX_3D) * 4;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	GetDevice()->CreateBuffer(&bd, NULL, &g_VertexBuffer);
-
-
-	// プレイヤーの初期化
-	g_Use = true;
-	g_w = TEXTURE_WIDTH;
-	g_h = TEXTURE_HEIGHT;
-	g_Pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	g_TexNo = 0;
-
-	//other
 	ti_canInput = true;
 
 	// BGM再生
@@ -113,21 +89,11 @@ HRESULT InitTitle(void)
 //=============================================================================
 void UninitTitle(void)
 {
-	if (g_VertexBuffer)
-	{
-		g_VertexBuffer->Release();
-		g_VertexBuffer = NULL;
+	// スプライトの解放処理
+	for (int i = 0; i < MAX_UISPRITE; i++) {
+		UnloadUISprite(&g_UISprite[i]);
 	}
-
-	for (int i = 0; i < TEXTURE_MAX; i++)
-	{
-		if (g_Texture[i])
-		{
-			g_Texture[i]->Release();
-			g_Texture[i] = NULL;
-		}
-	}
-
+	
 }
 
 //=============================================================================
@@ -139,7 +105,7 @@ void UpdateTitle(void)
 	if (blockMoveTimer >= BLOCK_MOVE_TIME) {
 		blockMoveTimer = 0;
 		blocktype += 1;
-		if (blocktype > 6)blocktype = 0;
+		if (blocktype > 7)blocktype = 1;
 		// scale
 		scalesize = TEXTURE_BLOCK_SCALE;
 	}
@@ -153,7 +119,7 @@ void UpdateTitle(void)
 		if (ti_canInput == true) {
 			ti_canInput = false;
 			SetFade(FADE_OUT, MODE_TUTORIAL);
-			//PlaySound(SOUND_LABEL_SE_start);
+			PlaySound(SOUND_LABEL_SE_start);
 		}
 	}
 
@@ -175,68 +141,31 @@ void DrawTitle(void)
 	SetDepthEnable(false);
 	SetLightEnable(false);
 
-	// 頂点バッファ設定
-	UINT stride = sizeof(VERTEX_3D);
-	UINT offset = 0;
-	GetDeviceContext()->IASetVertexBuffers(0, 1, &g_VertexBuffer, &stride, &offset);
-
-	// マトリクス設定
-	SetWorldViewProjection2D();
-
-	// プリミティブトポロジ設定
-	GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	// マテリアル設定
-	MATERIAL material;
-	ZeroMemory(&material, sizeof(material));
-	material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	SetMaterial(material);
-
 	// ブロックの背景を描画
 	{
 		for (int j = -1; j < SCREEN_HEIGHT / TEXTURE_HEIGHT_BLOCK + 2; j++) {
 			for (int i = 0; i < SCREEN_WIDTH / TEXTURE_WIDTH_BLOCK + 1; i++) {
-				// テクスチャ設定
-				GetDeviceContext()->PSSetShaderResources(0, 1, &g_Texture[blocktype]);
-
-				// １枚のポリゴンの頂点とテクスチャ座標を設定
-				SetSprite(g_VertexBuffer, TEXTURE_WIDTH_BLOCK * i, TEXTURE_HEIGHT_BLOCK*j + blockMoveTimer / 2, scalesize, scalesize, 0.0f, 0.0f, 1.0f, 1.0f);
-
-				// ポリゴン描画
-				GetDeviceContext()->Draw(4, 0);
+				DrawUISprite(&g_UISprite[blocktype], TEXTURE_WIDTH_BLOCK * i, TEXTURE_HEIGHT_BLOCK*j + blockMoveTimer / 2, scalesize, scalesize);
 			}
 		}
 	}
 
 	// タイトルの背景を描画
-	{
-		// テクスチャ設定
-		GetDeviceContext()->PSSetShaderResources(0, 1, &g_Texture[7]);
-
-		// １枚のポリゴンの頂点とテクスチャ座標を設定
-		SetSprite(g_VertexBuffer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, 0.0f, 0.0f, 1.0f, 1.0f);
-
-		// ポリゴン描画
-		GetDeviceContext()->Draw(4, 0);
-	}
+	DrawUISprite(&g_UISprite[0]);
+	
 
 	// エンターキー/スタートボタンを描画
 	{
-		// テクスチャ設定
-		GetDeviceContext()->PSSetShaderResources(0, 1, &g_Texture[8]);
-
 		// １枚のポリゴンの頂点とテクスチャ座標を設定
 		if (blockMoveTimer <= BLOCK_MOVE_TIME / 2) {
 			float a = (float)blockMoveTimer / (float)(BLOCK_MOVE_TIME / 2.0f);
-			SetSpriteColor(g_VertexBuffer, SCREEN_WIDTH / 2, 380, TEXTURE_WIDTH_LOGO, 90.0f, 0.0f, 0.0f, 1.0f, 1.0f, D3DXCOLOR(1.0f, 1.0f, 1.0f, a));
+			g_UISprite[8].Material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, a);
 		}
 		else {
 			float a = (float)blockMoveTimer / (float)(BLOCK_MOVE_TIME / 2.0f) - 1.0f;
-			SetSpriteColor(g_VertexBuffer, SCREEN_WIDTH / 2, 380, TEXTURE_WIDTH_LOGO, 90.0f, 0.0f, 0.0f, 1.0f, 1.0f, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1 - a));
+			g_UISprite[8].Material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1-a);
 		}
-
-		// ポリゴン描画
-		GetDeviceContext()->Draw(4, 0);
+		DrawUISprite(&g_UISprite[8]);
 	}
 
 	SetLightEnable(true);

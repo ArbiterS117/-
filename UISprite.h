@@ -44,3 +44,4 @@ void LoadUISprite(char *TextureName, DX11_UISPRITE *UIsprite, float width = 50.0
 void UnloadUISprite(DX11_UISPRITE *UIsprite);
 void DrawUISprite(DX11_UISPRITE *UIsprite, int num = 0, bool anti = false);
 void DrawUISprite(DX11_UISPRITE *UIsprite, float posX, float posY, int num = 0);
+void DrawUISprite(DX11_UISPRITE *UIsprite, float posX, float posY, float Width, float Height,int num = 0); // Texture_W,Texture_H を無視

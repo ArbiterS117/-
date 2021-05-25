@@ -280,9 +280,9 @@ void LoadObj(char *FileName, MODEL *Model, DX11_MODEL *D3DXModel, bool oriClr)
 	D3DXVECTOR3 *normal = normalArray;
 	D3DXVECTOR2 *texcoord = texcoordArray;
 
-	unsigned short vc = 0;
-	unsigned short ic = 0;
-	unsigned short sc = 0;
+	unsigned short vc = 0; // vertex count
+	unsigned short ic = 0; // index count
+	unsigned short sc = 0; // material count
 
 	//MeshCollider
 	D3DXModel->VertexNum = positionNum;
@@ -405,10 +405,10 @@ void LoadObj(char *FileName, MODEL *Model, DX11_MODEL *D3DXModel, bool oriClr)
 			if (in == 4)
 			{
 				Model->IndexArray[ic] = vc - 4;
-				D3DXModel->Indexlist[ic] = D3DXModel->Indexlist[ic - 4];
+				D3DXModel->Indexlist[ic] = D3DXModel->Indexlist[ic - 4]; // point 1
 				ic++;
 				Model->IndexArray[ic] = vc - 2;
-				D3DXModel->Indexlist[ic] = D3DXModel->Indexlist[ic - 3];
+				D3DXModel->Indexlist[ic] = D3DXModel->Indexlist[ic - 3]; // point 3 -> 4 1 3 to make triangle face
 				ic++;
 			}
 		}

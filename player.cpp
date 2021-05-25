@@ -915,6 +915,8 @@ void CollisionUpdate(PLAYER & player)
 			g_Player.isInSandStatus = true;
 			g_Player.isInBobStatus = false;
 			PlaySound(SOUND_LABEL_SE_aqua);
+			player.gravityScale = VALUE_GRAVITY;
+			player.maxMoveSpeed = PLAYER_MAX_MOVE_SPEED;
 		}
 		if (Enemy[targetID].enemyType == EnemyType_mushroomSpring) {
 			ChangeForceY(PLAYER_MUSH_JUMP_SPEED);
@@ -926,6 +928,8 @@ void CollisionUpdate(PLAYER & player)
 		}
 		if (Enemy[targetID].enemyType == EnemyType_mushroom) {
 			g_Player.isInBobStatus = false;
+			player.gravityScale = VALUE_GRAVITY;
+			player.maxMoveSpeed = PLAYER_MAX_MOVE_SPEED;
 			ChangeForceY(PLAYER_SAND_JUMP_SPEED);
 			player.speed.x = -player.dirXZ.x * player.dashSpeed;
 			player.speed.z = -player.dirXZ.z * player.dashSpeed;

@@ -12,6 +12,7 @@
 #include "platform.h"
 #include "EditTool.h"
 #include "input.h"
+#include "enemy.h"
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
@@ -42,19 +43,22 @@ static DX11_UISPRITE		        g_UISprite[MAX_UISPRITE];				// モデル情報
 #define UISPRITE_THROWUSE          "data/TEXTURE/result/throwUse.png"
 #define UISPRITE_SP                "data/TEXTURE/result/SP.png"
 
+int		g_GameTimeSec;			    
+int		g_GameTimeMin;			    
 
-static int						g_Score;					// スコア
-static int						g_Coin;					    // スコア
-static int						g_Miss;					    // スコア
-static bool						g_DrawSightPoint = false;
-
-bool						g_DrawMove     = false;
-bool						g_DrawJump     = false;
-bool						g_DrawDash     = false;
-bool						g_DrawThrow    = false;
-bool						g_DrawUse      = false;
-bool						g_DrawThrowUse = false;
-bool						g_DrawSP       = false;
+int		g_Score;					// Star
+int		g_Coin;					   
+int		g_AllScore;
+int		g_AllCoin;					   
+int		g_Miss;					    
+bool	g_DrawSightPoint = false;
+bool	g_DrawMove     = false;
+bool	g_DrawJump     = false;
+bool	g_DrawDash     = false;
+bool	g_DrawThrow    = false;
+bool	g_DrawUse      = false;
+bool	g_DrawThrowUse = false;
+bool	g_DrawSP       = false;
 
 //=============================================================================
 // 初期化処理
@@ -79,8 +83,19 @@ HRESULT InitScore(void)
 	//Tutorio
 
 	g_Score = 0;	// スコアの初期化
-	g_Coin  = 0;  	// スコアの初期化
+	g_Coin  = 0;  	
 	g_Miss  = 0;
+	g_GameTimeSec = 0;
+	g_GameTimeMin = 0;
+
+	//count all coin and star
+	ENEMY *g_Enemy = GetEnemy();
+	g_AllScore = 0;
+	g_AllCoin = 0;
+	for (int i = 0; i < MAX_ENEMY; i++) {
+		if (g_Enemy[i].enemyType == EnemyType_star) AddAllScore(1);
+		if (g_Enemy[i].enemyType == EnemyType_coin) AddAllCoin(1);
+	}
 
 	return S_OK;
 }
@@ -222,6 +237,28 @@ void AddCoin(int add)
 
 }
 
+void AddAllScore(int add)
+{
+	g_AllScore += add;
+	if (g_AllScore > SCORE_MAX)
+	{
+		g_AllScore = SCORE_MAX;
+	}
+
+	if (g_AllScore < 0)g_AllScore = 0;
+}
+
+void AddAllCoin(int add)
+{
+	g_AllCoin += add;
+	if (g_AllCoin > SCORE_MAX)
+	{
+		g_AllCoin = SCORE_MAX;
+	}
+
+	if (g_AllCoin < 0)g_AllCoin = 0;
+}
+
 void AddMiss(int add)
 {
 	g_Miss += add;
@@ -234,14 +271,48 @@ void AddMiss(int add)
 
 }
 
+void AddScoreTime(int sec)
+{
+	g_GameTimeSec += sec;
+	if (g_GameTimeSec >= 60) {
+		g_GameTimeMin += 1;
+		g_GameTimeSec -= 60;
+	}
+}
+
 int GetScore()
 {
 	return g_Score;
 }
 
+int GetCoin()
+{
+	return g_Coin;
+}
+
+int GetAllScore()
+{
+	return g_AllScore;
+}
+
+int GetAllCoin()
+{
+	return g_AllCoin;
+}
+
 int GetMiss()
 {
 	return g_Miss;
+}
+
+int GetGameTimeSec()
+{
+	return g_GameTimeSec;
+}
+
+int GetGameTimeMin()
+{
+	return g_GameTimeMin;
 }
 
 void showSign(int i)

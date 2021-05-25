@@ -15,6 +15,9 @@
 
 #define INTRO_TEXTURE_WIDTH         (960.0f)
 #define INTRO_TEXTURE_HEIGHT        (546.0f)
+#define UISPRITE_INTROA             "data/TEXTURE/result/goal.png"
+#define UISPRITE_INTROB             "data/TEXTURE/result/goal.png"
+#define UISPRITE_INTROC             "data/TEXTURE/result/goal.png"
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
@@ -23,10 +26,7 @@
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static DX11_UISPRITE		        g_UISprite[MAX_UISPRITE];				// モデル情報
-#define UISPRITE_INTROA             "data/TEXTURE/result/goal.png"
-#define UISPRITE_INTROB             "data/TEXTURE/result/goal.png"
-#define UISPRITE_INTROC             "data/TEXTURE/result/goal.png"
+static DX11_UISPRITE		        g_UISprite[MAX_UISPRITE]; // UIスプライト情報
 
 int lv = 0;
 //=============================================================================
@@ -59,7 +59,7 @@ void UninitTutorial(void)
 void UpdateTutorial(void)
 {
 	// ボタン押したら、ステージを切り替える
-	if (lv >= 2) {
+	if (lv >= 0) {
 		if (GetKeyboardTrigger(DIK_RETURN) || IsMouseLeftTriggered()) SetFade(FADE_OUT, MODE_GAME);
 	}
 	else {

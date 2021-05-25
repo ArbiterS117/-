@@ -153,6 +153,35 @@ void DrawUISprite(DX11_UISPRITE *sprite, float posX, float posY, int num)
 	GetDeviceContext()->Draw(4, 0);
 
 }
+void DrawUISprite(DX11_UISPRITE * sprite, float posX, float posY, float Width, float Height, int num)
+{
+	// 頂点バッファ設定
+	UINT stride = sizeof(VERTEX_3D);
+	UINT offset = 0;
+	GetDeviceContext()->IASetVertexBuffers(0, 1, &sprite->VertexBuffer, &stride, &offset);
+
+	// マトリクス設定
+	SetWorldViewProjection2D();
+
+	// プリミティブトポロジ設定
+	GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	// マテリアル設定
+	SetMaterial(sprite->Material);
+
+	// テクスチャ設定
+	GetDeviceContext()->PSSetShaderResources(0, 1, &sprite->Texture);
+
+	float tw = 1.0f / (float)sprite->Texture_Divide_X;		// テクスチャの幅
+	float th = 1.0f / (float)sprite->Texture_Divide_Y;		// テクスチャの高さ
+	float tx = num % sprite->Texture_Divide_X * tw;	    // テクスチャの左上X座標
+	float ty = num / sprite->Texture_Divide_X * th;		// テクスチャの左上Y座標
+
+	SetUISprite(sprite, posX, posY, Width, Height, tx, ty, tw, th, sprite->Material.Diffuse, sprite->Rot);
+
+	// ポリゴンの描画
+	GetDeviceContext()->Draw(4, 0);
+}
 //=============================================================================
 // SetSprites
 //=============================================================================

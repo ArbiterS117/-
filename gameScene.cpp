@@ -43,6 +43,7 @@ static void DebugProc();
 bool bIsStoppingFrame = false;
 int  StoppingFrameLeft = 0;
 int  StopFrameCD = 0;
+int  gameTime = 0;
 
 ////======Edit Mode
 ////Edit Menu
@@ -112,6 +113,8 @@ HRESULT InitGameScene(void)
 	
 
 	InitEditTool();
+
+	gameTime = 0;
 	//===================DEBUG
 
 	return S_OK;
@@ -169,6 +172,13 @@ void UpdateGameScene(void)
 	}
 
 	if (StopFrameCD > 0)StopFrameCD -= 1;
+
+	//game Time
+	gameTime += 1;
+	if (gameTime >= 60) {
+		AddScoreTime(1); // 60 frame 1 sec
+		gameTime = 0;
+	}
 
 	//========== セーブ＆ロードのテスト
 #ifdef _DEBUG	// デバッグ情報を表示する

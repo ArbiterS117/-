@@ -26,9 +26,17 @@ void DrawScore(void);
 
 void AddScore(int add);
 void AddCoin(int add);
+void AddAllScore(int add);
+void AddAllCoin(int add);
 void AddMiss(int add);
+void AddScoreTime(int sec);
 int GetScore();
+int GetCoin();
+int GetAllScore();
+int GetAllCoin();
 int GetMiss();
+int GetGameTimeSec();
+int GetGameTimeMin();
 
 void showSign(int i);
 
