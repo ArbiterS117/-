@@ -37,3 +37,5 @@ void DrawGround(void);
 
 DX11_MODEL getGroundModel(int id);
 D3DXVECTOR3 *getGroundNormal(int id);
+
+D3DXVECTOR3 GetGroungModelSCL();

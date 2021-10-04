@@ -248,6 +248,10 @@ void PlaySound(int label)
 		g_apSourceVoice[label]->FlushSourceBuffers();
 	}
 
+	// 音量調整
+	float vol = 0.1f;
+	g_apSourceVoice[label]->SetVolume(vol);
+
 	// オーディオバッファの登録
 	g_apSourceVoice[label]->SubmitSourceBuffer(&buffer);
 

@@ -8,6 +8,10 @@
 #include "input.h"
 #include "camera.h"
 #include "player.h"
+#include "Collider3D.h"
+#include "ground.h"
+#include "debugproc.h"
+#include "ground.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -29,9 +33,12 @@
 #define VIEW_ROTX_MAX   (D3DX_PI * 0.45f)
 #define VIEW_ROTX_MIN   (-D3DX_PI * 0.45f)
 
+#define PHYSICUPDATE_FRAME   (2)
+
 static MOIVE_TRANSFORM cam_move_tbl[] = { //camera movie point
-	{240, D3DXVECTOR3(1149, -251, 17072),          D3DXVECTOR3(14077, 4108, 7609),         oneObject},
-	{240, D3DXVECTOR3(1149, -251, 17072),          D3DXVECTOR3(14077, 4108, 7609),         oneObject},
+	{600, D3DXVECTOR3(-58449, 7096, 30688),          D3DXVECTOR3(-58914, 6930, 30992),     twoPointMoveandLookAt},
+	{300, D3DXVECTOR3(-15, 1112, 979),          D3DXVECTOR3(140, 783, 501),         twoPointMoveandLookAt},
+	{240, D3DXVECTOR3(1326.0f, 956.0f, -1270.0f),  D3DXVECTOR3(1326.0f, 956.0f, -3190.0f), oneObject},//dummy
 	{240, D3DXVECTOR3(1326.0f, 956.0f, -1270.0f),  D3DXVECTOR3(1326.0f, 956.0f, -3190.0f), oneObject},//dummy
 	//{D3DXVECTOR3(300.0f, 956.0f,-300.0f),   D3DXVECTOR3(.0f, 0.0f, 0.0f), twoPointMoveandLookAt, 120},
 	//{D3DXVECTOR3(-200.0f, 200.0f, -200.0f), D3DXVECTOR3(-100.0f, 0.0f, -100.0f), twoPointMoveandLookAt, 120},
@@ -54,6 +61,7 @@ enum MOVE_TBL_DATA_NUM
 //*****************************************************************************
 static void InputUpdate(void);
 static void PhysicsUpdate(CAMERA &camera);
+static void CollisionUpdate();
 static void MovieModeUpdate();
 
 //*****************************************************************************
@@ -65,6 +73,8 @@ static float screenWHelf = SCREEN_WIDTH * 0.5f;
 static float screenHHelf = SCREEN_HEIGHT * 0.5f;
 
 static bool  skipMouseDetect = true;
+
+static int  PhysicsUpdateRate = 0;
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -98,6 +108,9 @@ void InitCamera(void)
 	g_Camera.TDN = TDN_cam_move_tbl;
 	g_Camera.move_time = 0.0f;
 	g_Camera.MovieMode = false;
+
+	////====collider
+	//g_Camera.CircleRangeColliderIdx = CreateCollider3DCircle(collider3DTag_CameraCircleRange, g_Camera.pos, 500.0f, 0);
 }
 
 
@@ -122,14 +135,17 @@ void UpdateCamera(void)
 	//================Physics
 	PhysicsUpdate(g_Camera);
 
+	//================Cpllision
+	CollisionUpdate();
+
 	//================Movie Like Update
 	MovieModeUpdate();
 
 #ifdef _DEBUG	// デバッグ情報を表示する
+	char* str = GetDebugStr();
+	sprintf(&str[strlen(str)], " CrotX:%.2f CrotY:%.2f", g_Camera.rot.x, g_Camera.rot.y);
 	//char* str = GetDebugStr();
-	//sprintf(&str[strlen(str)], " CrotX:%.2f CrotY:%.2f", g_Camera.rot.x, g_Camera.rot.y);
-	//char* str = GetDebugStr();
-	//sprintf(&str[strlen(str)], " CposX : %.2f  CposY : %.2f  CposZ : %.2f ", g_Camera.pos.x, g_Camera.pos.y, g_Camera.pos.z);
+	sprintf(&str[strlen(str)], " CposX : %.2f  CposY : %.2f  CposZ : %.2f ", g_Camera.pos.x, g_Camera.pos.y, g_Camera.pos.z);
 #endif
 
 }
@@ -367,8 +383,74 @@ void PhysicsUpdate(CAMERA & camera)
 	//Update Speed
 	g_Camera.pos += g_Camera.speed;
 
+	////===========rate==================================
+	//PhysicsUpdateRate += 1;
+	//if (PhysicsUpdateRate < PHYSICUPDATE_FRAME) {
+	//	return;
+	//}
+	//else {
+	//	PhysicsUpdateRate = 0;
+	//}
+
+	//===========RayHit Ground==================================
+	if (camera.TPMode == false) return;
+	PLAYER *player;
+	player = GetPlayer();
+	D3DXVECTOR3 hit, normal, Camera_Dir;
+	Camera_Dir = player->pos - g_Camera.pos;
+	bool rayHit = false;
+	if(player->InHeartWorldArea) rayHit += RayHit(player->pos, -Camera_Dir, &hit, &normal, GroundType_HeartWorld, g_Camera.len);
+	if(player->InHtoWArea)       rayHit += RayHit(player->pos, -Camera_Dir, &hit, &normal, GroundType_HtoW, g_Camera.len);
+	if(player->InWonderLandArea) rayHit += RayHit(player->pos, -Camera_Dir, &hit, &normal, GroundType_Wonderland, g_Camera.len);
+	if(player->InWonderLand2Area)rayHit += RayHit(player->pos, -Camera_Dir, &hit, &normal, GroundType_Wonderland2, g_Camera.len);
+	if(player->InWtoSArea)       rayHit += RayHit(player->pos, -Camera_Dir, &hit, &normal, GroundType_WtoS, g_Camera.len);
+	if(player->InSandWorldArea)  rayHit += RayHit(player->pos, -Camera_Dir, &hit, &normal, GroundType_SandWorld, g_Camera.len);
+	if(player->InStoSArea)       rayHit += RayHit(player->pos, -Camera_Dir, &hit, &normal, GroundType_StoS, g_Camera.len);
+	if(player->InSnowWorldArea)  rayHit += RayHit(player->pos, -Camera_Dir, &hit, &normal, GroundType_SnowWorld, g_Camera.len);
+	if (rayHit) {				
+		g_Camera.pos = hit;
+	}
+	//===========RayHit Plat==================================
+	//==========OBJ in PlatCircleRange => OBJInRange = {inRangeOBJ1, inRangeOBJ2 .... OBJNum}
+	COLLIDER3D *Collider = GetCollider();
+	int OBJNum = 0;
+	for (int i = 0; i < MAX_COLLIDER3D; i++) {
+		if (Collider[i].tag == collider3DTag_PlatCircleRange) {
+			if (CheckHitByID(player->CircleRangeColliderIdx, i)) {
+				OBJNum++;
+			}
+		}
+	}
+	int *OBJInRange = NULL;
+	if (OBJNum > 0) OBJInRange = new int[OBJNum];
+	int OBJPutCnt = 0;
+	for (int i = 0; i < MAX_COLLIDER3D; i++) {
+		if (Collider[i].tag == collider3DTag_PlatCircleRange) {
+			if (CheckHitByID(player->CircleRangeColliderIdx, i)) {
+				OBJInRange[OBJPutCnt] = i;
+				OBJPutCnt++;
+			}
+		}
+	}
+	//=================== plat
+	for (int i = 0; i < OBJNum; i++) {
+		int targetCID = OBJInRange[i];
+		if (CheckHitByID(player->CircleRangeColliderIdx, targetCID)) {
+			if (RayHitPlat(player->pos, -Camera_Dir, &hit, &normal, targetCID, g_Camera.len)) {
+				g_Camera.pos = hit;
+			}
+		}
+	}
+
+
 	//char* str = GetDebugStr();
 	//sprintf(&str[strlen(str)], "  g_Camera.speed.x: %.2f  g_Camera.speed.z: %.2f", g_Camera.speed.x, g_Camera.speed.z);
+}
+
+void CollisionUpdate() {
+	//========collider position
+	
+
 }
 
 void MovieModeUpdate()

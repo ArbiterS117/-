@@ -53,8 +53,8 @@ char	g_DebugStr[2048] = WINDOW_NAME;		// デバッグ文字表示用
 
 #endif
 
-//MODE g_Mode = MODE_GAME;					// 起動時の画面を設定
-MODE g_Mode = MODE_TITLE;
+MODE g_Mode = MODE_GAME;					// 起動時の画面を設定
+//MODE g_Mode = MODE_TITLE;
 //MODE g_Mode = MODE_RESULT;
 //MODE g_Mode = MODE_TUTORIAL;
 

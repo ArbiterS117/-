@@ -462,3 +462,7 @@ void InitNormals()
 
 }
 
+D3DXVECTOR3 GetGroungModelSCL()
+{
+	return D3DXVECTOR3(SCALE_X, SCALE_Y, SCALE_Z);
+}

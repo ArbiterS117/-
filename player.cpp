@@ -87,6 +87,10 @@
 #define PLAYER_SANDSTATETIME       (1000)                    // 砂状態時間
 #define PLAYER_MOVESMOKECDTIME     (6)                       // 歩いての煙
 
+//OTHER
+#define VALUE_CAMERA_DIS_NOT_DRAW       (150.0f)
+#define PHYSICUPDATE_FRAME   (2)
+
 //*****************************************************************************
 // プロトタイプ宣言
 //*****************************************************************************
@@ -128,6 +132,8 @@ static bool g_canCreateSPParticle = true;
 static bool g_canCtrl = true;
 static int  g_getStarAnimTimer = 0;
 static int  waterAbilityTimer = 0;
+
+static int PhysicsUpdateRate = 0;
 
 //=============================================================================
 // 初期化処理
@@ -282,6 +288,11 @@ void UpdatePlayer(void)
 //=============================================================================
 void DrawPlayer(void)
 {
+	D3DXVECTOR3 dis = g_Player.pos - GetCamera()->pos;
+	float camera_dis_sq = D3DXVec3LengthSq(&dis);
+
+	if (camera_dis_sq < VALUE_CAMERA_DIS_NOT_DRAW * VALUE_CAMERA_DIS_NOT_DRAW) return;
+
 	D3DXMATRIX mtxScl, mtxRot, mtxTranslate;
 
 	//SetAlphaTestEnable(true);
@@ -334,7 +345,7 @@ void InputUpdate(void) {
 
 	if (GetKeyboardTrigger(DIK_NUMPAD2))g_canCtrl = !g_canCtrl;
 	if (GetKeyboardTrigger(DIK_TAB))g_canCtrl = !g_canCtrl;
-	
+	if (GetKeyboardTrigger(DIK_F9) || IsMouseCenterTriggered()) g_Player.pos = GetCamera()->at;
 
 	CAMERA *cam = GetCamera();
 	// 移動させちゃう
@@ -608,6 +619,33 @@ void PhysicsUpdate(PLAYER & player) {
 		//player.speed.y = 0.0f;
 	}
 
+
+	//==============================================rate
+	//PhysicsUpdateRate += 1;
+	//if (PhysicsUpdateRate < PHYSICUPDATE_FRAME) {
+	//
+	//	if (player.speed.y > 0.0f) player.isGround = false;
+	//
+	//	player.isGroundPrev = player.isGround;
+	//
+	//	if (player.isGround) {
+	//		player.speed.y = 0.0f;
+	//		player.Exit_Moving_Plat = false;
+	//	}
+	//	//==========Update Speed
+	//	player.pos += player.speed;
+	//
+	//	//==========Anim
+	//	D3DXVECTOR3 AnimspeedXZ = D3DXVECTOR3(player.speed.x, 0.0f, player.speed.z);
+	//	player.speedXZLengh = D3DXVec3Length(&AnimspeedXZ);
+	//	////////////////////////////////////////////////////////////////////////////
+	//
+	//	return;
+	//}
+	//else {
+	//	PhysicsUpdateRate = 0;
+	//}
+
 	//==========Ground Detect
 	if (player.On_Moving_Plat) {
 		player.pos.y = Collider[player.bodyColliderIdx].hy * 0.5f + Collider[player.On_Moving_PlatID].pos.y + Collider[player.On_Moving_PlatID].hy * 0.5f;
@@ -699,7 +737,7 @@ void PhysicsUpdate(PLAYER & player) {
 		if (CheckHitByID(player.CircleRangeColliderIdx, targetCID)) {
 			if (!plat[Collider[targetCID].masterID].canMove) {
 				if (player.speed.y <= 0.0f) {
-					if (RayHitPlat(player.pos, targetCID, &hit, &normal)) {
+					if (RayHitPlatGround(player.pos, targetCID, &hit, &normal)) {
 						bool slopeANS = false;
 						if (player.isOnSlope && player.pos.y - hit.y <= PLAYER_GROUND_OFFSET_Y * 1.5f)slopeANS = true;
 						if (player.pos.y - hit.y <= PLAYER_GROUND_OFFSET_Y * 1.2f || slopeANS) {
@@ -767,7 +805,7 @@ void PhysicsUpdate(PLAYER & player) {
 			if (player.speed.y > 0.0f) { // 天井
 				D3DXVECTOR3 cellingY = player.pos;
 				cellingY.y += PLAYER_GROUNDCHECKC_Y;
-				if (RayHitPlat(cellingY, targetCID, &hit, &normal)) {
+				if (RayHitPlatGround(cellingY, targetCID, &hit, &normal)) {
 					if (normal.y < 0.0f) {
 						if (player.speed.y > 0.0f && hit.y > player.pos.y) {
 							player.speed.y = 0.0f;

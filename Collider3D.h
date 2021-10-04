@@ -21,9 +21,10 @@ enum enumCollider3DTag
 {
 	collider3DTag_none,
 	collider3DTag_player,
-	collider3DTag_CircleRange,      // For every Circle Range to Chek if need to do more accurate intersection detection
-	collider3DTag_PlatCircleRange,  // For every Circle Range to Chek if need to do more accurate intersection detection
-	collider3DTag_EnemyCircleRange, // For every Circle Range to Chek if need to do more accurate intersection detection
+	collider3DTag_CircleRange,       // For every Circle Range to Chek if need to do more accurate intersection detection
+	collider3DTag_PlatCircleRange,   // For every Circle Range to Chek if need to do more accurate intersection detection
+	collider3DTag_EnemyCircleRange,  // For every Circle Range to Chek if need to do more accurate intersection detection
+	//collider3DTag_CameraCircleRange, // For every Circle Range to Chek if need to do more accurate intersection detection
 	collider3DTag_enemy,
 	collider3DTag_ground,
 	collider3DTag_groundCheck,
@@ -43,6 +44,7 @@ enum enumCollider3DTag
 	collider3DTag_GroundArea_StoS,
 	collider3DTag_GroundArea_SnowWorld,
 	collider3DTag_EnemyChaseCheck,
+
 
 };
 //*****************************************************************************
@@ -105,10 +107,12 @@ bool CheckHitByID(int selfID, int targetID);
 bool CheckHitByIDOBB(int selfID, int targetID);
 bool CheckHitByIDOBBToPoint(int selfID, int targetID, D3DXVECTOR3 *minPonit);
 
-bool RayHitPlat(D3DXVECTOR3 pos, int TargetCID,D3DXVECTOR3 *HitPosition, D3DXVECTOR3 *Normal);
+bool RayHitPlatGround(D3DXVECTOR3 pos, int TargetCID,D3DXVECTOR3 *HitPosition, D3DXVECTOR3 *Normal);
 bool RayHitPlatWall(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 forwardXY, D3DXVECTOR3 *HitPosition, D3DXVECTOR3 *Normal);
+bool RayHitPlat(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal, int id, float dis = 1000.0f);
 bool RayHitGround(D3DXVECTOR3 pos, D3DXVECTOR3 *HitPosition, D3DXVECTOR3 *Normal, int id);
 bool RayHitGroundWall(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY,D3DXVECTOR3 *HitPosition, D3DXVECTOR3 *Normal, int id);
+bool RayHit(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal, int id, float dis = 1000.0f);
 
 // other
 COLLIDER3D *GetCollider(void);

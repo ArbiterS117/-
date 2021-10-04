@@ -41,7 +41,18 @@ struct CAMERA
 	bool                canMove;
 	bool                MovieMode;
 
+	//Collision detect Area
+	bool              InHeartWorldArea;
+	bool              InHtoWArea;
+	bool              InWonderLandArea;
+	bool              InWonderLand2Area;
+	bool              InWtoSArea;
+	bool              InSandWorldArea;
+	bool              InStoSArea;
+	bool              InSnowWorldArea;
+
 	int                 TDN;            //階層アニメーション
+	//int                 CircleRangeColliderIdx;
 
 	float               maxMoveSpeed;
 	float               decelerate;

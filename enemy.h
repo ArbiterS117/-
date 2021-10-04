@@ -117,6 +117,7 @@ int SetEnemy(D3DXVECTOR3 pos, D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f),
 int SetEnemyToID(int num, DX11_MODEL model, D3DXVECTOR3 pos, D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f),
 	D3DXVECTOR3 scl = D3DXVECTOR3(0.0f, 0.0f, 0.0f), int EnemyType = 0);
 
+
 void ReleaseEnemy(int id);
 void ReleaseEnemy(ENEMY &enemy);
 

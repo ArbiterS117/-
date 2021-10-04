@@ -1279,7 +1279,7 @@ bool CheckHitByTagOBBPointReturnCID(int selfID, int tag, D3DXVECTOR3 *minPonit, 
 	return false;
 }
 
-bool RayHitPlat(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal)
+bool RayHitPlatGround(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal)
 {
 	PLATFORM *plat = GetPlatform();
 	int targetMID = g_Collider3D[TargetCID].masterID;
@@ -1436,6 +1436,85 @@ bool RayHitPlatWall(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 forwardXY, D3DXV
 	return false;
 }
 
+bool RayHitPlat(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal, int id, float dis)
+{
+	PLATFORM *plat = GetPlatform();
+	int targetMID = g_Collider3D[id].masterID;
+	D3DXVec3Normalize(&forwardXY, &forwardXY);
+	D3DXVECTOR3 start = pos;
+	D3DXVECTOR3 end = pos;
+	D3DXVECTOR3 HitPositionTemp;
+	D3DXVECTOR3 NormalTemp;
+
+	D3DXMATRIX  mtxScl, mtxRot, mtxTranslate, mtxWorld;
+	// ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&mtxWorld);
+	// スケールを反映
+	D3DXMatrixScaling(&mtxScl, plat[targetMID].scl.x, plat[targetMID].scl.y, plat[targetMID].scl.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxScl);
+
+	// 回転を反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, plat[targetMID].rot.y, plat[targetMID].rot.x, plat[targetMID].rot.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxRot);
+
+	// 移動を反映
+	if (plat[targetMID].canMove) {
+		D3DXMatrixTranslation(&mtxTranslate, plat[targetMID].CaculatedPos.x, plat[targetMID].CaculatedPos.y, plat[targetMID].CaculatedPos.z);
+	}
+	else {
+		D3DXMatrixTranslation(&mtxTranslate, plat[targetMID].pos.x, plat[targetMID].pos.y, plat[targetMID].pos.z);
+	}
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxTranslate);
+
+	// 少し上から、ズドーンと下へレイを飛ばす
+	//start -= forwardXY * 50.0f;
+	end += forwardXY * dis;
+	int ansI = -1;
+	float NDis = 0.0f;
+	bool firstFindNDis = false;
+	for (int i = 0; i < plat[targetMID].model.IndexNum; i += 3) {
+		D3DXVECTOR3 p0, p1, p2;
+		p0 = plat[targetMID].model.Vertexlist[plat[targetMID].model.Indexlist[i]];
+		p1 = plat[targetMID].model.Vertexlist[plat[targetMID].model.Indexlist[i + 1]];
+		p2 = plat[targetMID].model.Vertexlist[plat[targetMID].model.Indexlist[i + 2]];
+
+
+		D3DXVec3TransformCoord(&p0, &p0, &mtxWorld);
+		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
+		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
+
+		//bool ans = RayCast(p0, p1, p2, start, end, &HitPositionTemp, &NormalTemp, caculatedNormal[i]);
+		bool ans = RayCast(p0, p2, p1, start, end, &HitPositionTemp, &NormalTemp);
+
+		if (ans) {
+			// Find nearest
+			float dis = D3DXVec3LengthSq(&(HitPositionTemp - pos));
+			if (!firstFindNDis) {
+				firstFindNDis = true;
+				NDis = dis;
+				ansI = i;
+				*HitPosition = HitPositionTemp;
+				*Normal = NormalTemp;
+			}
+			if (NDis > dis) {
+				NDis = dis;
+				ansI = i;
+				*HitPosition = HitPositionTemp;
+				*Normal = NormalTemp;
+			}
+			//return true;
+		}
+	}
+
+	// return nearest
+	if (ansI != -1) {
+		
+		return true;
+	}
+
+	return false;
+}
+
 bool RayHitGround(D3DXVECTOR3 pos, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal ,int id)
 {
 	D3DXVECTOR3 start = pos;
@@ -1581,6 +1660,90 @@ bool RayHitGroundWall(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitP
 
 	// return nearest
 	if (ansI != -1 ) {
+		if (fabsf(Normal->y) <= 0.5f) {
+			//PrintDebugProc("Wall: hitposX: %f hitposY: %f hitposZ: %f\n", HitPosition->x, HitPosition->y, HitPosition->z);
+			//PrintDebugProc("Wall: normalX: %f normalY: %f normalZ: %f\n", Normal->x, Normal->y, Normal->z);
+			//PrintDebugProc("i: %d\n", ansI);
+		}
+		return true;
+	}
+
+	return false;
+}
+
+bool RayHit(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal, int id, float dis)
+{
+	D3DXVec3Normalize(&forwardXY, &forwardXY);
+	D3DXVECTOR3 start = pos;
+	D3DXVECTOR3 end = pos;
+	D3DXVECTOR3 HitPositionTemp;
+	D3DXVECTOR3 NormalTemp;
+
+	D3DXVECTOR3 *caculatedNormal = NULL;
+	caculatedNormal = getGroundNormal(id);
+	DX11_MODEL model = getGroundModel(id);
+
+	D3DXMATRIX  mtxScl, mtxRot, mtxTranslate, mtxWorld;
+	// ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&mtxWorld);
+	// スケールを反映
+	D3DXVECTOR3 groundSCL = GetGroungModelSCL();
+	D3DXMatrixScaling(&mtxScl, groundSCL.x, groundSCL.y, groundSCL.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxScl);
+
+	// 回転を反映
+	//float worldRotX = returnWorldRot(1);
+	//float worldRotY = returnWorldRot(2);
+	//float worldRotZ = returnWorldRot(3);
+	//D3DXMatrixRotationYawPitchRoll(&mtxRot, worldRotX, worldRotY, worldRotZ);
+	//D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxRot);
+
+	// 移動を反映
+	//D3DXMatrixTranslation(&mtxTranslate, 0.0f, 0.0f, 0.0f);
+	//D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxTranslate);
+
+	// 少し上から、ズドーンと下へレイを飛ばす
+	//start -= forwardXY * 50.0f;
+	end += forwardXY * dis;
+	int ansI = -1;
+	float NDis = 0.0f;
+	bool firstFindNDis = false;
+	for (int i = 0; i < model.IndexNum; i += 3) {
+		D3DXVECTOR3 p0, p1, p2;
+		p0 = model.Vertexlist[model.Indexlist[i]];
+		p1 = model.Vertexlist[model.Indexlist[i + 1]];
+		p2 = model.Vertexlist[model.Indexlist[i + 2]];
+
+
+		D3DXVec3TransformCoord(&p0, &p0, &mtxWorld);
+		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
+		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
+
+		//bool ans = RayCast(p0, p1, p2, start, end, &HitPositionTemp, &NormalTemp, caculatedNormal[i]);
+		bool ans = RayCast(p0, p2, p1, start, end, &HitPositionTemp, &NormalTemp);
+
+		if (ans) {
+			// Find nearest
+			float dis = D3DXVec3LengthSq(&(HitPositionTemp - pos));
+			if (!firstFindNDis) {
+				firstFindNDis = true;
+				NDis = dis;
+				ansI = i;
+				*HitPosition = HitPositionTemp;
+				*Normal = NormalTemp;
+			}
+			if (NDis > dis) {
+				NDis = dis;
+				ansI = i;
+				*HitPosition = HitPositionTemp;
+				*Normal = NormalTemp;
+			}
+			//return true;
+		}
+	}
+
+	// return nearest
+	if (ansI != -1) {
 		if (fabsf(Normal->y) <= 0.5f) {
 			//PrintDebugProc("Wall: hitposX: %f hitposY: %f hitposZ: %f\n", HitPosition->x, HitPosition->y, HitPosition->z);
 			//PrintDebugProc("Wall: normalX: %f normalY: %f normalZ: %f\n", Normal->x, Normal->y, Normal->z);
