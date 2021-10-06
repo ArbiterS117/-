@@ -345,9 +345,11 @@ void InputUpdate(void) {
 
 	if (GetKeyboardTrigger(DIK_NUMPAD2))g_canCtrl = !g_canCtrl;
 	if (GetKeyboardTrigger(DIK_TAB))g_canCtrl = !g_canCtrl;
-	if (GetKeyboardTrigger(DIK_F9) || IsMouseCenterTriggered()) g_Player.pos = GetCamera()->at;
 
 	CAMERA *cam = GetCamera();
+	if (cam->MovieMode) return;
+	if (GetKeyboardTrigger(DIK_F9) || IsMouseCenterTriggered()) g_Player.pos = GetCamera()->at;
+
 	// 移動させちゃう
 	D3DXVECTOR3 dir = g_Player.pos - GetCamera()->pos;
 	dir = D3DXVECTOR3{ dir.x, 0.0f, dir.z }; // don't want to fly (move according to dir.y)
@@ -357,7 +359,7 @@ void InputUpdate(void) {
 	D3DXVECTOR3 InputDir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	//if (!cam->TPMode) return;
-	if (cam->MovieMode) return;
+	
 	if (!g_canCtrl) return;
 
 	float moveSpeed;
