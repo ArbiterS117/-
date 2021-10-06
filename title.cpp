@@ -21,11 +21,11 @@
 #define TEXTURE_HEIGHT_BLOCK		(64)	        // 
 #define TEXTURE_BLOCK_SCALE		    (96)	        // 
 
-#define TEXTURE_WIDTH_LOGO			(400)			// ロゴサイズ
-#define TEXTURE_HEIGHT_LOGO			(154)			// 
+#define TEXTURE_WIDTH_LOGO			(800)			// ロゴサイズ
+#define TEXTURE_HEIGHT_LOGO			(300)			// 
 
-#define TEXTURE_WIDTH_BTN			(400)			// ボタンサイズ
-#define TEXTURE_HEIGHT_BTN			(90)			// 
+#define TEXTURE_WIDTH_BTN			(900)			// ボタンサイズ
+#define TEXTURE_HEIGHT_BTN			(180)			// 
 
 #define BLOCK_MOVE_TIME             (TEXTURE_HEIGHT_BLOCK * 2)
 
@@ -63,7 +63,7 @@ bool ti_canInput = true;
 //=============================================================================
 HRESULT InitTitle(void)
 {
-	LoadUISprite(UISPRITE_TITLE, &g_UISprite[0], TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, SCREEN_CENTER_X, SCREEN_CENTER_Y);
+	LoadUISprite(UISPRITE_TITLE, &g_UISprite[0], TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, SCREEN_CENTER_X, SCREEN_CENTER_Y - 50.0f);
 	LoadUISprite(UISPRITE_B1, &g_UISprite[1], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
 	LoadUISprite(UISPRITE_B2, &g_UISprite[2], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
 	LoadUISprite(UISPRITE_B3, &g_UISprite[3], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
@@ -71,7 +71,7 @@ HRESULT InitTitle(void)
 	LoadUISprite(UISPRITE_B5, &g_UISprite[5], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
 	LoadUISprite(UISPRITE_B6, &g_UISprite[6], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
 	LoadUISprite(UISPRITE_B7, &g_UISprite[7], TEXTURE_WIDTH_BLOCK, TEXTURE_HEIGHT_BLOCK, 0.0f, 0.0f);
-	LoadUISprite(UISPRITE_PRESS_BTN, &g_UISprite[8], TEXTURE_WIDTH_BTN, TEXTURE_HEIGHT_BTN, SCREEN_WIDTH / 2, 380.0f);
+	LoadUISprite(UISPRITE_PRESS_BTN, &g_UISprite[8], TEXTURE_WIDTH_BTN, TEXTURE_HEIGHT_BTN, SCREEN_WIDTH / 2 + 50.0f, 850.0f);
 
 	///////////////////////////////////////////////////////////
 	ID3D11Device *pDevice = GetDevice();

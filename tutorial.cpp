@@ -13,8 +13,8 @@
 //*****************************************************************************
 #define MAX_UISPRITE                (3)
 
-#define INTRO_TEXTURE_WIDTH         (960.0f)
-#define INTRO_TEXTURE_HEIGHT        (546.0f)
+#define INTRO_TEXTURE_WIDTH         (1920.0f)
+#define INTRO_TEXTURE_HEIGHT        (1080.0f)
 #define UISPRITE_INTROA             "data/TEXTURE/result/goal.png"
 #define UISPRITE_INTROB             "data/TEXTURE/result/goal.png"
 #define UISPRITE_INTROC             "data/TEXTURE/result/goal.png"
@@ -29,6 +29,8 @@
 static DX11_UISPRITE		        g_UISprite[MAX_UISPRITE]; // UIスプライト情報
 
 int lv = 0;
+
+int timer = 0;
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -37,6 +39,8 @@ HRESULT InitTutorial(void)
 	LoadUISprite(UISPRITE_INTROA, &g_UISprite[0], INTRO_TEXTURE_WIDTH, INTRO_TEXTURE_HEIGHT, SCREEN_CENTER_X, SCREEN_CENTER_Y);
 	LoadUISprite(UISPRITE_INTROB, &g_UISprite[1], INTRO_TEXTURE_WIDTH, INTRO_TEXTURE_HEIGHT, SCREEN_CENTER_X, SCREEN_CENTER_Y);
 	LoadUISprite(UISPRITE_INTROC, &g_UISprite[2], INTRO_TEXTURE_WIDTH, INTRO_TEXTURE_HEIGHT, SCREEN_CENTER_X, SCREEN_CENTER_Y);
+
+	timer = 0;
 
 	return S_OK;
 }
@@ -65,6 +69,9 @@ void UpdateTutorial(void)
 	else {
 		if (GetKeyboardTrigger(DIK_RETURN) || IsMouseLeftTriggered()) lv++;
 	}
+
+	timer += 1;
+	if (timer > 600) SetFade(FADE_OUT, MODE_GAME);
 		
 }
 

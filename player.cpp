@@ -357,6 +357,7 @@ void InputUpdate(void) {
 	D3DXVECTOR3 InputDir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	//if (!cam->TPMode) return;
+	if (cam->MovieMode) return;
 	if (!g_canCtrl) return;
 
 	float moveSpeed;
@@ -958,6 +959,7 @@ void CollisionUpdate(PLAYER & player)
 		}
 		if (Enemy[targetID].enemyType == EnemyType_mushroomSpring) {
 			ChangeForceY(PLAYER_MUSH_JUMP_SPEED);
+			PlaySound(SOUND_LABEL_SE_jump);
 			g_Player.Anim_isStepOnMushroomSpring = true;
 			player.canThrowCard = true;
 			player.canDash = true;
@@ -1131,7 +1133,7 @@ void PlayerStatusUpdate(PLAYER & player) // & other
 
 	// Dash Sys
 	if (player.isDash) {
-		if(player.isGround)player.maxMoveSpeed = PLAYER_DASH_SPEED;
+		if(player.isGround) player.maxMoveSpeed = PLAYER_DASH_SPEED;
 		else player.maxMoveSpeed = PLAYER_AIRDASH_SPEED;
 		player.dashTimer += 1; player.isFloat = true;
 		if (player.dashTimer >= PLAYER_DASHTIME) {

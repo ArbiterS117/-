@@ -232,6 +232,7 @@ void UpdateGameScene(void)
 
 	//========== debug
 #ifdef _DEBUG
+	if (GetGameSceneEditMode() == false) return;
 	if (GetKeyboardTrigger(DIK_RETURN)) {
 		SetFade(FADE_OUT, MODE_RESULT);
 	}

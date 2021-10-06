@@ -24,15 +24,15 @@
 #define TEXTURE_WIDTH_LOGO			(400)			// ロゴサイズ
 #define TEXTURE_HEIGHT_LOGO			(90)			// 
 
-#define TEXTURE_WIDTH_RANKMARKS     (400)			// ランクマークサイズ
-#define TEXTURE_HEIGHT_RANKMARKS    (400)			// 
+#define TEXTURE_WIDTH_RANKMARKS     (800)			// ランクマークサイズ
+#define TEXTURE_HEIGHT_RANKMARKS    (800)			// 
 
 #define TEXTURE_WIDTH_BLOCK			(64)	        // ブロック背景サイズ
 #define TEXTURE_HEIGHT_BLOCK		(64)	        // 
 #define BLOCK_MOVE_TIME             (TEXTURE_HEIGHT_BLOCK * 2)
 
-#define TEXTURE_WIDTH_BTN			(400)			// ボタンサイズ
-#define TEXTURE_HEIGHT_BTN			(90)			// 
+#define TEXTURE_WIDTH_BTN			(900)			// ボタンサイズ
+#define TEXTURE_HEIGHT_BTN			(180)			// 
 
 #define TEXTURE_WIDTH_TEXT			(24)	        // 数字のテクスチャサイズ
 #define TEXTURE_HEIGHT_TEXT			(48)	        // 
@@ -82,20 +82,20 @@ bool re_canInput = true;
 HRESULT InitResult(void)
 {
 	LoadUISprite(UISPRITE_BLOCK,     &g_UISprite[0], TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, SCREEN_CENTER_X, SCREEN_CENTER_Y);
-	LoadUISprite(UISPRITE_CLEARTIME, &g_UISprite[1], TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, SCREEN_WIDTH / 2 - 100, 50);
-	LoadUISprite(UISPRITE_DEATHCNT,  &g_UISprite[2], 1259 * 0.5, 186 * 0.5, SCREEN_CENTER_X - 100, 150);
-	LoadUISprite(UISPRITE_RANK,      &g_UISprite[3], TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, SCREEN_CENTER_X - 100, 250);
-	LoadUISprite(UISPRITE_RS,        &g_UISprite[4], TEXTURE_WIDTH_RANKMARKS, TEXTURE_HEIGHT_RANKMARKS,  SCREEN_CENTER_X + 350, SCREEN_CENTER_Y - 50.0f);
-	LoadUISprite(UISPRITE_RA,        &g_UISprite[5], TEXTURE_WIDTH_RANKMARKS/1.5f, TEXTURE_HEIGHT_RANKMARKS/1.5f,  SCREEN_CENTER_X + 350, SCREEN_CENTER_Y - 50.0f);
-	LoadUISprite(UISPRITE_RB,        &g_UISprite[6], TEXTURE_WIDTH_RANKMARKS/2.5f, TEXTURE_HEIGHT_RANKMARKS/2.5f,  SCREEN_CENTER_X + 350, SCREEN_CENTER_Y - 50.0f);
-	LoadUISprite(UISPRITE_RC,        &g_UISprite[7], TEXTURE_WIDTH_RANKMARKS/3.5f, TEXTURE_HEIGHT_RANKMARKS/3.5f,  SCREEN_CENTER_X + 350, SCREEN_CENTER_Y - 50.0f);
-	LoadUISprite(UISPRITE_RD,        &g_UISprite[8], TEXTURE_WIDTH_RANKMARKS/3.5f, TEXTURE_HEIGHT_RANKMARKS/3.5f,  SCREEN_CENTER_X + 350, SCREEN_CENTER_Y - 50.0f);
+	LoadUISprite(UISPRITE_CLEARTIME, &g_UISprite[1], TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, SCREEN_WIDTH / 2 - 100, 150);
+	LoadUISprite(UISPRITE_DEATHCNT,  &g_UISprite[2], 1259 * 0.5, 186 * 0.5, SCREEN_CENTER_X - 100, 300);
+	LoadUISprite(UISPRITE_RANK,      &g_UISprite[3], TEXTURE_WIDTH_LOGO, TEXTURE_HEIGHT_LOGO, SCREEN_CENTER_X - 100 + 250, 250);
+	LoadUISprite(UISPRITE_RS,        &g_UISprite[4], TEXTURE_WIDTH_RANKMARKS, TEXTURE_HEIGHT_RANKMARKS,  SCREEN_CENTER_X + 350 + 250, SCREEN_CENTER_Y - 150.0f);
+	LoadUISprite(UISPRITE_RA,        &g_UISprite[5], TEXTURE_WIDTH_RANKMARKS/1.5f, TEXTURE_HEIGHT_RANKMARKS/1.5f,  SCREEN_CENTER_X + 350 + 250, SCREEN_CENTER_Y - 150.0f);
+	LoadUISprite(UISPRITE_RB,        &g_UISprite[6], TEXTURE_WIDTH_RANKMARKS/2.5f, TEXTURE_HEIGHT_RANKMARKS/2.5f,  SCREEN_CENTER_X + 350 + 250, SCREEN_CENTER_Y - 150.0f);
+	LoadUISprite(UISPRITE_RC,        &g_UISprite[7], TEXTURE_WIDTH_RANKMARKS/3.5f, TEXTURE_HEIGHT_RANKMARKS/3.5f,  SCREEN_CENTER_X + 350 + 250, SCREEN_CENTER_Y - 150.0f);
+	LoadUISprite(UISPRITE_RD,        &g_UISprite[8], TEXTURE_WIDTH_RANKMARKS/3.5f, TEXTURE_HEIGHT_RANKMARKS/3.5f,  SCREEN_CENTER_X + 350 + 250, SCREEN_CENTER_Y - 150.0f);
 	LoadUISprite(UISPRITE_NUM,       &g_UISprite[9], TEXTURE_WIDTH_TEXT, TEXTURE_HEIGHT_TEXT, 0.0f, 0.0f, 10, 1);
-	LoadUISprite(UISPRITE_PRESS_BTN, &g_UISprite[10], TEXTURE_WIDTH_BTN, TEXTURE_HEIGHT_BTN, SCREEN_CENTER_X + 200, SCREEN_CENTER_Y + 200.0f);
+	LoadUISprite(UISPRITE_PRESS_BTN, &g_UISprite[10], TEXTURE_WIDTH_BTN, TEXTURE_HEIGHT_BTN, SCREEN_CENTER_X + 400, SCREEN_CENTER_Y + 300.0f);
 	LoadUISprite(UISPRITE_SMOKE,     &g_UISprite[11], 24, 24, 0.0f, 0.0f);
-	LoadUISprite(UISPRITE_STAR,      &g_UISprite[12], 400, 98, 0.0f, 0.0f);
-	LoadUISprite(UISPRITE_COIN,      &g_UISprite[13], 256, 256, 0.0f, 0.0f);
-	LoadUISprite(UISPRITE_TFP,       &g_UISprite[14], 450, 65, 225.0f, 500.0f);
+	LoadUISprite(UISPRITE_STAR,      &g_UISprite[12], 400, 98, SCREEN_CENTER_X + 550, 0.0f);
+	LoadUISprite(UISPRITE_COIN,      &g_UISprite[13], 256, 256, SCREEN_CENTER_X + 550, 0.0f);
+	LoadUISprite(UISPRITE_TFP,       &g_UISprite[14], 800, 110, 425.0f, 850.0f);
 	
 	// BGM再生
 	//PlaySound(SOUND_LABEL_BGM_sample002);
@@ -210,7 +210,7 @@ void DrawResult(void)
 	{
 		// 秒処理する
 		g_Pos.x = SCREEN_WIDTH / 2 + 200;
-		g_Pos.y = 50;
+		g_Pos.y = 150;
 		g_w = TEXTURE_WIDTH_TEXT;
 
 		// 桁数分処理する
@@ -232,7 +232,7 @@ void DrawResult(void)
 
 		// 分処理する
 		g_Pos.x = SCREEN_WIDTH / 2 + 100;
-		g_Pos.y = 50;
+		g_Pos.y = 150;
 		g_w = TEXTURE_WIDTH_TEXT;
 
 		// 桁数分処理する
@@ -254,8 +254,8 @@ void DrawResult(void)
 
 		// コロン(:)を描画 
 		{
-			DrawUISprite(&g_UISprite[11], SCREEN_WIDTH / 2 + 140, 40,0);
-			DrawUISprite(&g_UISprite[11], SCREEN_WIDTH / 2 + 140, 60,0);
+			DrawUISprite(&g_UISprite[11], SCREEN_WIDTH / 2 + 140, 140,0);
+			DrawUISprite(&g_UISprite[11], SCREEN_WIDTH / 2 + 140, 160,0);
 		}
 
 	}
@@ -270,7 +270,7 @@ void DrawResult(void)
 	if (confirmStep > 1)
 	{
 		g_Pos.x = SCREEN_WIDTH / 2 + 150;
-		g_Pos.y = 150;
+		g_Pos.y = 300;
 		g_w = TEXTURE_WIDTH_TEXT;
 
 		// 桁数分処理する
@@ -292,14 +292,14 @@ void DrawResult(void)
 
 	// スターを描画
 	{
-		DrawUISprite(&g_UISprite[12],450.0f, 250.0f, 400.0f, 100.0f);
+		DrawUISprite(&g_UISprite[12],950.0f, 450.0f, 400.0f, 100.0f);
 	}
 	// スター数字を描画
 	if (confirmStep > 2)
 	{
 		// 持っているスター数字
 		g_Pos.x = SCREEN_WIDTH / 2 + 100;
-		g_Pos.y = 250;
+		g_Pos.y = 450;
 		g_w = TEXTURE_WIDTH_TEXT;
 
 		// 桁数分処理する
@@ -319,7 +319,7 @@ void DrawResult(void)
 
 		// すべてスター数字を描画
 		g_Pos.x = SCREEN_WIDTH / 2 + 200;
-		g_Pos.y = 250;
+		g_Pos.y = 450;
 		g_w = TEXTURE_WIDTH_TEXT;
 
 		// 桁数分処理する
@@ -340,21 +340,21 @@ void DrawResult(void)
 		// コロン(:)を描画 
 		{
 			g_UISprite[11].Rot = D3DX_PI * 0.2f;
-			DrawUISprite(&g_UISprite[11], SCREEN_WIDTH / 2 + 140, 250, 12, 120);
+			DrawUISprite(&g_UISprite[11], SCREEN_WIDTH / 2 + 140, 450, 12, 120);
 			g_UISprite[11].Rot = 0.0f;
 		}
 	}
 
 	// コインを描画
 	{
-		DrawUISprite(&g_UISprite[13], 350.0f, 350.0f, 64.0f, 64.0f);
+		DrawUISprite(&g_UISprite[13], 850.0f, 600.0f, 64.0f, 64.0f);
 	}
 	// コイン数字を描画
 	if (confirmStep > 3)
 	{
 		// 持っているスター数字
 		g_Pos.x = SCREEN_WIDTH / 2 + 100;
-		g_Pos.y = 350;
+		g_Pos.y = 600;
 		g_w = TEXTURE_WIDTH_TEXT;
 
 		// 桁数分処理する
@@ -374,7 +374,7 @@ void DrawResult(void)
 
 		// すべてスター数字を描画
 		g_Pos.x = SCREEN_WIDTH / 2 + 200;
-		g_Pos.y = 350;
+		g_Pos.y = 600;
 		g_w = TEXTURE_WIDTH_TEXT;
 
 		// 桁数分処理する
@@ -395,7 +395,7 @@ void DrawResult(void)
 		// コロン(:)を描画 
 		{
 			g_UISprite[11].Rot = D3DX_PI * 0.2f;
-			DrawUISprite(&g_UISprite[11], SCREEN_WIDTH / 2 + 140, 350, 12, 120);
+			DrawUISprite(&g_UISprite[11], SCREEN_WIDTH / 2 + 140, 600, 12, 120);
 			g_UISprite[11].Rot = 0.0f;
 		}
 	}

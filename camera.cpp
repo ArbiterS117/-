@@ -25,7 +25,8 @@
 #define	VIEW_NEAR_Z		(20.0f)											// ビュー平面のNearZ値
 #define	VIEW_FAR_Z		(80000.0f)										// ビュー平面のFarZ値
 
-#define	VALUE_MOVE_CAMERA	(2.0f)										// カメラの移動量
+#define	VALUE_MOVE_CAMERA	 (2.0f)										// カメラの移動量
+#define	VALUE_CAMERA_LEN_MAX (5000.0f)										// カメラの距離MAX
 #define	VALUE_ROTATE_CAMERA	(D3DX_PI * 0.01f)							// カメラの回転量
 
 #define VIEW_SIGHTVIEWING_SPEED (0.0013)
@@ -36,17 +37,19 @@
 #define PHYSICUPDATE_FRAME   (2)
 
 static MOIVE_TRANSFORM cam_move_tbl[] = { //camera movie point
-	{600, D3DXVECTOR3(-58449, 7096, 30688),          D3DXVECTOR3(-58914, 6930, 30992),     twoPointMoveandLookAt},
-	{300, D3DXVECTOR3(-15, 1112, 979),          D3DXVECTOR3(140, 783, 501),         twoPointMoveandLookAt},
-	{240, D3DXVECTOR3(1326.0f, 956.0f, -1270.0f),  D3DXVECTOR3(1326.0f, 956.0f, -3190.0f), oneObject},//dummy
-	{240, D3DXVECTOR3(1326.0f, 956.0f, -1270.0f),  D3DXVECTOR3(1326.0f, 956.0f, -3190.0f), oneObject},//dummy
-	//{D3DXVECTOR3(300.0f, 956.0f,-300.0f),   D3DXVECTOR3(.0f, 0.0f, 0.0f), twoPointMoveandLookAt, 120},
-	//{D3DXVECTOR3(-200.0f, 200.0f, -200.0f), D3DXVECTOR3(-100.0f, 0.0f, -100.0f), twoPointMoveandLookAt, 120},
-	//{D3DXVECTOR3(-400.0f, 80.0f, 200.0f),   D3DXVECTOR3(0.0f, 0.0f, 0.0f), twoPointMoveandLookAt, 120},
-	//{D3DXVECTOR3(500.0f, 100.0f, 500.0f),   D3DXVECTOR3(200.0f, 500.0f, -100.0f), twoPointMoveandLookAt, 120},
-	//{D3DXVECTOR3(0.0f, 100.0f, 0.0f),       D3DXVECTOR3(0.0f, 0.0f, 0.0f), twoPointMoveandLookAt, 120},
-	//{D3DXVECTOR3(0.0f, 100.0f, 0.0f),       D3DXVECTOR3(0.0f, 0.0f, 0.0f), twoPointMoveandLookAt, 120},//dummy
-	//{D3DXVECTOR3(0.0f, 100.0f, 0.0f),       D3DXVECTOR3(0.0f, 0.0f, 0.0f), twoPointMoveandLookAt, 120},//dummy
+	{300, D3DXVECTOR3(-58449, 7096, 30688),          D3DXVECTOR3(-58914, 6930, 30992),     twoPointMoveandLookAt},
+	{300, D3DXVECTOR3(-57449, 7096, 29688),          D3DXVECTOR3(-57914, 7030, 29992),     twoPointMoveandLookAt},
+	{150, D3DXVECTOR3(-47682, 6287, 19272),          D3DXVECTOR3(-48110, 6015, 19695),     twoPointMoveandLookAt},
+	{100, D3DXVECTOR3(-41267, 6219, 18707),          D3DXVECTOR3(-40927, 6074, 19161),     twoPointMoveandLookAt},
+	{240, D3DXVECTOR3(-23904, 6165, 22592),          D3DXVECTOR3(-23549, 6052, 22920),     twoPointMoveandLookAt},
+	{150, D3DXVECTOR3(2140, 6230, 20328),            D3DXVECTOR3(2040, 5990, 19940),       twoPointMoveandLookAt},
+	{180, D3DXVECTOR3(4626, 2826, 8577),             D3DXVECTOR3(4090, 2556, 8718),        twoPointMoveandLookAt},
+	{240, D3DXVECTOR3(3102, 2805, -670),             D3DXVECTOR3(2773, 2519, -448),        twoPointMoveandLookAt},
+	{180, D3DXVECTOR3(-15, 1112, -979),              D3DXVECTOR3(324, 454, -116),          twoPointMoveandLookAt},
+	{100, D3DXVECTOR3(-15, 1112, -979),              D3DXVECTOR3(324, 454, -116),          twoPointMoveandLookAt},
+	{100, D3DXVECTOR3(1326.0f, 956.0f, -1270.0f),    D3DXVECTOR3(1326.0f, 956.0f, -3190.0f), oneObject},//dummy
+	{100, D3DXVECTOR3(1326.0f, 956.0f, -1270.0f),    D3DXVECTOR3(1326.0f, 956.0f, -3190.0f), oneObject},//dummy
+	{100, D3DXVECTOR3(1326.0f, 956.0f, -1270.0f),    D3DXVECTOR3(1326.0f, 956.0f, -3190.0f), oneObject},//dummy
 
 };
 
@@ -107,7 +110,7 @@ void InitCamera(void)
 	g_Camera.tbl_adr = cam_move_tbl;
 	g_Camera.TDN = TDN_cam_move_tbl;
 	g_Camera.move_time = 0.0f;
-	g_Camera.MovieMode = false;
+	g_Camera.MovieMode = true;
 
 	////====collider
 	//g_Camera.CircleRangeColliderIdx = CreateCollider3DCircle(collider3DTag_CameraCircleRange, g_Camera.pos, 500.0f, 0);
@@ -128,7 +131,7 @@ void UninitCamera(void)
 //=============================================================================
 void UpdateCamera(void)
 {
-	
+	if (GetMode() != MODE_GAME)return;
 	//================Input
 	InputUpdate();
 
@@ -142,10 +145,9 @@ void UpdateCamera(void)
 	MovieModeUpdate();
 
 #ifdef _DEBUG	// デバッグ情報を表示する
-	char* str = GetDebugStr();
-	sprintf(&str[strlen(str)], " CrotX:%.2f CrotY:%.2f", g_Camera.rot.x, g_Camera.rot.y);
 	//char* str = GetDebugStr();
-	sprintf(&str[strlen(str)], " CposX : %.2f  CposY : %.2f  CposZ : %.2f ", g_Camera.pos.x, g_Camera.pos.y, g_Camera.pos.z);
+	//sprintf(&str[strlen(str)], " CrotX:%.2f CrotY:%.2f", g_Camera.rot.x, g_Camera.rot.y);
+	//sprintf(&str[strlen(str)], " CposX : %.2f  CposY : %.2f  CposZ : %.2f ", g_Camera.pos.x, g_Camera.pos.y, g_Camera.pos.z);
 #endif
 
 }
@@ -331,6 +333,7 @@ void InputUpdate(void) {
 		if (GetKeyboardPress(DIK_X) || GetWheel() < 0)
 		{// 離れる
 			g_Camera.len += VALUE_MOVE_CAMERA * 10.0f;
+			if (g_Camera.len >= VALUE_CAMERA_LEN_MAX)g_Camera.len = VALUE_CAMERA_LEN_MAX;
 			if (GetWheel() <= -15) { // double speed => one more time
 				g_Camera.len += VALUE_MOVE_CAMERA * 10.0f;
 				if (g_Camera.len < 100.0f)g_Camera.len = 100.0f;
@@ -470,6 +473,11 @@ void MovieModeUpdate()
 	{
 		g_Camera.move_time = 0.0f;
 		index = 0;
+		g_Camera.MovieMode = false;
+	}
+
+	if (index > 0) {
+		if (GetKeyboardTrigger(DIK_RETURN)) g_Camera.MovieMode = false;
 	}
 
 	if (size != 1) {

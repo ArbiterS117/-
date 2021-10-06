@@ -7,6 +7,7 @@
 #include "ground.h"
 #include "Collider3D.h"
 #include "player.h"
+#include "camera.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -162,7 +163,9 @@ void DrawGround(void)
 
 	// 移動を反映
 	PLAYER *player = GetPlayer();
-	D3DXMatrixTranslation(&mtxTranslate, player->pos.x, 0.0f, player->pos.z);
+	CAMERA *camera = GetCamera();
+	if(camera->MovieMode) D3DXMatrixTranslation(&mtxTranslate, camera->pos.x, 0.0f, player->pos.z);
+	else D3DXMatrixTranslation(&mtxTranslate, player->pos.x, 0.0f, player->pos.z);
 	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxTranslate);
 
 	// ワールドマトリックスの設定

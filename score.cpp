@@ -13,13 +13,14 @@
 #include "EditTool.h"
 #include "input.h"
 #include "enemy.h"
+#include "camera.h"
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
-#define MAX_UISPRITE                (13)
+#define MAX_UISPRITE                (14)
 #define SCORE_DIGITAL_POS_X         (40.0f)
 #define SCORE_DIGITAL_POS_Y         (32.0f)
-#define MISS_DIGITAL_POS_X          (900.0f)
+#define MISS_DIGITAL_POS_X          (1850.0f)
 #define MISS_DIGITAL_POS_Y          (32.0f)
 #define TEXTURE_WIDTH				(24)	// キャラサイズ
 #define TEXTURE_HEIGHT				(48)	// 
@@ -34,6 +35,7 @@ static DX11_UISPRITE		        g_UISprite[MAX_UISPRITE];				// モデル情報
 #define UISPRITE_DEATH             "data/TEXTURE/result/deathCount.png"
 #define UISPRITE_RANK              "data/TEXTURE/result/StarNum.png"
 #define UISPRITE_COIN              "data/TEXTURE/result/coin.png"
+#define UISPRITE_TUTORIAL_TEXT     "data/TEXTURE/result/Tutorial Text.png"
 
 #define UISPRITE_MOVE              "data/TEXTURE/result/move.png"
 #define UISPRITE_JUMP              "data/TEXTURE/result/jump.png"
@@ -69,8 +71,9 @@ HRESULT InitScore(void)
 	LoadUISprite(UISPRITE_TITLE, &g_UISprite[0], 500, 100, 200.0f, 200.0f, 1, 1,0.0f,D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 	LoadUISprite(UISPRITE_SIGHTPOINT, &g_UISprite[2], 64, 64, SCREEN_CENTER_X, SCREEN_CENTER_Y, 1, 1, 0.0f,D3DXCOLOR(0.7f, 1.5f, 0.7f, 1.0f));
 	LoadUISprite(UISPRITE_DEATH, &g_UISprite[3], 400, 80, SCREEN_WIDTH + 120.0f, 30.0f, 1, 1, 0.0f,D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
-	LoadUISprite(UISPRITE_RANK, &g_UISprite[4], 400, 80, 170.0f, 40.00, 1, 1, 0.0f,D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+	LoadUISprite(UISPRITE_RANK, &g_UISprite[4], 400, 80, 180.0f, 40.00, 1, 1, 0.0f,D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 	LoadUISprite(UISPRITE_COIN, &g_UISprite[5], 400, 80, 170.0f, 40.00, 1, 1, 0.0f,D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+	LoadUISprite(UISPRITE_TUTORIAL_TEXT, &g_UISprite[13], 800, 120, 400.0f, 60.00, 1, 1, 0.0f,D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
 	LoadUISprite(UISPRITE_MOVE    , &g_UISprite[6],  250, 250, 150.0f, 170.00, 1, 1, 0.0f, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 	LoadUISprite(UISPRITE_JUMP    , &g_UISprite[7],  250, 250, 150.0f, 300.00, 1, 1, 0.0f, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
@@ -139,12 +142,17 @@ void DrawScore(void)
 
 	//================Draw Title
 	
+	CAMERA *camera = GetCamera();
+	if (camera->MovieMode) {
+		DrawUISprite(&g_UISprite[13]);
+		return;
+	}
 	//DrawUISprite(&g_UISprite[0]); // Title
 	if (GetGameSceneEditMode()) {
 		if(g_DrawSightPoint)	DrawUISprite(&g_UISprite[2]); // SightPoint
 	}
 	else {
-		//DrawUISprite(&g_UISprite[3]);
+		DrawUISprite(&g_UISprite[3]);
 		DrawUISprite(&g_UISprite[4]);
 		// sign
 		if(g_DrawMove)DrawUISprite(&g_UISprite[6]);
@@ -197,7 +205,7 @@ void DrawScore(void)
 			float px = MISS_DIGITAL_POS_X - TEXTURE_WIDTH * i;	// 数字の表示位置X
 			float py = MISS_DIGITAL_POS_Y;			            // 数字の表示位置Y
 
-			//DrawUISprite(&g_UISprite[1], px, py, x);
+			DrawUISprite(&g_UISprite[1], px, py, x);
 
 		}
 
