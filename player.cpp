@@ -140,6 +140,8 @@ static int PhysicsUpdateRate = 0;
 //=============================================================================
 HRESULT InitPlayer(void)
 {
+	getFinalStar = false;
+
 	g_Player.Use = true;
 
 	// 位置・回転・スケールの初期設定
