@@ -476,7 +476,7 @@ void MovieModeUpdate()
 		g_Camera.MovieMode = false;
 	}
 
-	if (index > 0) {
+	if (index >= 0) {
 		if (GetKeyboardTrigger(DIK_RETURN)) g_Camera.MovieMode = false;
 	}
 

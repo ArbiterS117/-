@@ -43,6 +43,9 @@ bool CheckHitOBBReturnLen(int col1ID, int col2ID, D3DXVECTOR3 *Len);
 float CheckHitOBBToPoint(int col1ID, int col2ID, D3DXVECTOR3 *vec);
 																																												   //as switch 
 bool RayCast(D3DXVECTOR3 p0, D3DXVECTOR3 p1, D3DXVECTOR3 p2, D3DXVECTOR3 pos0, D3DXVECTOR3 pos1, D3DXVECTOR3 *hit, D3DXVECTOR3 *normal, D3DXVECTOR3 caculatedNormal = D3DXVECTOR3(-100.0f,0.0f,0.0f));
+
+float sign(D3DXVECTOR2 p1, D3DXVECTOR2 p2, D3DXVECTOR2 p3);
+bool PointInTriangle(D3DXVECTOR2 pt, D3DXVECTOR2 v1, D3DXVECTOR2 v2, D3DXVECTOR2 v3);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
@@ -1281,6 +1284,9 @@ bool CheckHitByTagOBBPointReturnCID(int selfID, int tag, D3DXVECTOR3 *minPonit, 
 
 bool RayHitPlatGround(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal)
 {
+	//For test
+	int raycastCount = 0;
+
 	PLATFORM *plat = GetPlatform();
 	int targetMID = g_Collider3D[TargetCID].masterID;
 	D3DXVECTOR3 start = pos;
@@ -1324,6 +1330,15 @@ bool RayHitPlatGround(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 * HitPosition,
 		D3DXVec3TransformCoord(&p0,&p0,&mtxWorld);
 		D3DXVec3TransformCoord(&p1,&p1,&mtxWorld);
 		D3DXVec3TransformCoord(&p2,&p2,&mtxWorld);
+
+		if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
+		D3DXVECTOR2 sPos = { pos.x, pos.z };
+		D3DXVECTOR2 sP0 = { p0.x,  p0.z };
+		D3DXVECTOR2 sP1 = { p1.x,  p1.z };
+		D3DXVECTOR2 sP2 = { p2.x,  p2.z };
+		if (PointInTriangle(sPos, sP0, sP1, sP2) == false)continue;
+		raycastCount++;
+
 		bool ans = RayCast(p0, p2, p1, start, end, &HitPositionTemp, &NormalTemp);
 		if (ans) {
 			// Find nearest
@@ -1351,6 +1366,8 @@ bool RayHitPlatGround(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 * HitPosition,
 			//PrintDebugProc("PlatGround: normalX: %f normalY: %f normalZ: %f\n", Normal->x, Normal->y, Normal->z);
 			//PrintDebugProc("i: %d\n", ansI);
 		}
+		PrintDebugProc("Plat: IndexNum: %d VertexNum: %d\n", plat[targetMID].model.IndexNum, plat[targetMID].model.VertexNum);
+		PrintDebugProc("Plat Ground RaycastCount: %d\n", raycastCount);
 		return true;
 	}
 
@@ -1359,6 +1376,9 @@ bool RayHitPlatGround(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 * HitPosition,
 
 bool RayHitPlatWall(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal)
 {
+	//For test
+	int raycastCount = 0;
+
 	PLATFORM *plat = GetPlatform();
 	int targetMID = g_Collider3D[TargetCID].masterID;
 	forwardXY.y = 0.0f;
@@ -1390,7 +1410,8 @@ bool RayHitPlatWall(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 forwardXY, D3DXV
 
 	// 少し上から、ズドーンと下へレイを飛ばす
 	//start -= forwardXY * 50.0f;
-	end += forwardXY * 1000.0f;
+	float rayCastLen = 500.0f;
+	end += forwardXY * rayCastLen;
 	int ansI = -1;
 	float NDis = 0.0f;
 	bool firstFindNDis = false;
@@ -1403,6 +1424,11 @@ bool RayHitPlatWall(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 forwardXY, D3DXV
 		D3DXVec3TransformCoord(&p0, &p0, &mtxWorld);
 		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
 		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
+
+		if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
+		if (p0.y < pos.y && p1.y < pos.y && p2.y < pos.y) continue;
+		raycastCount++;
+
 		bool ans = RayCast(p0, p2, p1, start, end, &HitPositionTemp, &NormalTemp);
 		if (ans) {
 			// Find nearest
@@ -1430,6 +1456,8 @@ bool RayHitPlatWall(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 forwardXY, D3DXV
 			//PrintDebugProc("PlatWall: normalX: %f normalY: %f normalZ: %f\n", Normal->x, Normal->y, Normal->z);
 			//PrintDebugProc("i: %d\n", ansI);
 		}
+		PrintDebugProc("Plat: IndexNum: %d VertexNum: %d\n", plat[targetMID].model.IndexNum, plat[targetMID].model.VertexNum);
+		PrintDebugProc("Plat Wall RaycastCount: %d\n", raycastCount);
 		return true;
 	}
 
@@ -1438,6 +1466,9 @@ bool RayHitPlatWall(D3DXVECTOR3 pos, int TargetCID, D3DXVECTOR3 forwardXY, D3DXV
 
 bool RayHitPlat(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal, int id, float dis)
 {
+	//For test
+	int raycastCount = 0;
+
 	PLATFORM *plat = GetPlatform();
 	int targetMID = g_Collider3D[id].masterID;
 	D3DXVec3Normalize(&forwardXY, &forwardXY);
@@ -1478,10 +1509,17 @@ bool RayHitPlat(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPositio
 		p1 = plat[targetMID].model.Vertexlist[plat[targetMID].model.Indexlist[i + 1]];
 		p2 = plat[targetMID].model.Vertexlist[plat[targetMID].model.Indexlist[i + 2]];
 
-
 		D3DXVec3TransformCoord(&p0, &p0, &mtxWorld);
 		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
 		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
+
+		if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
+		D3DXVECTOR2 sPos = { pos.x, pos.z };
+		D3DXVECTOR2 sP0 = { p0.x,  p0.z };
+		D3DXVECTOR2 sP1 = { p1.x,  p1.z };
+		D3DXVECTOR2 sP2 = { p2.x,  p2.z };
+		if (PointInTriangle(sPos, sP0, sP1, sP2) == false)continue;
+		raycastCount++;
 
 		//bool ans = RayCast(p0, p1, p2, start, end, &HitPositionTemp, &NormalTemp, caculatedNormal[i]);
 		bool ans = RayCast(p0, p2, p1, start, end, &HitPositionTemp, &NormalTemp);
@@ -1508,7 +1546,8 @@ bool RayHitPlat(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPositio
 
 	// return nearest
 	if (ansI != -1) {
-		
+		PrintDebugProc("Camera Plat: IndexNum: %d VertexNum: %d\n", plat[targetMID].model.IndexNum, plat[targetMID].model.VertexNum);
+		PrintDebugProc("Camera Plat RaycastCount: %d\n", raycastCount);
 		return true;
 	}
 
@@ -1517,6 +1556,9 @@ bool RayHitPlat(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPositio
 
 bool RayHitGround(D3DXVECTOR3 pos, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal ,int id)
 {
+	//For test
+	int raycastCount = 0;
+
 	D3DXVECTOR3 start = pos;
 	D3DXVECTOR3 end = pos;
 	D3DXVECTOR3 HitPositionTemp;
@@ -1547,7 +1589,6 @@ bool RayHitGround(D3DXVECTOR3 pos, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Norm
 	int ansI = -1;
 	float NDis = 0.0f;
 	bool firstFindNDis = false;
-	PrintDebugProc("Ground: IndexNum: %d VertexNum: %d\n", model.IndexNum, model.VertexNum);
 	for (int i = 0; i < model.IndexNum; i += 3) {
 		D3DXVECTOR3 p0, p1, p2;
 		p0 = model.Vertexlist[model.Indexlist[i]];
@@ -1558,6 +1599,14 @@ bool RayHitGround(D3DXVECTOR3 pos, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Norm
 		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
 		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
 		
+		if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
+		D3DXVECTOR2 sPos = { pos.x, pos.z };
+		D3DXVECTOR2 sP0  = {  p0.x,  p0.z };
+		D3DXVECTOR2 sP1  = {  p1.x,  p1.z };
+		D3DXVECTOR2 sP2  = {  p2.x,  p2.z };
+		if (PointInTriangle(sPos, sP0, sP1, sP2) == false)continue;
+		raycastCount++;
+
 		bool ans = RayCast(p0, p1, p2, start, end, &HitPositionTemp, &NormalTemp,caculatedNormal[i]);
 		if (ans) {
 			// Find nearest
@@ -1575,6 +1624,8 @@ bool RayHitGround(D3DXVECTOR3 pos, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Norm
 				*HitPosition = HitPositionTemp;
 				*Normal = NormalTemp;
 			}
+			PrintDebugProc("Ground: IndexNum: %d VertexNum: %d\n", model.IndexNum, model.VertexNum);
+			PrintDebugProc("Ground RaycastCount: %d\n", raycastCount);
 			return true;
 		}
 	}
@@ -1594,6 +1645,9 @@ bool RayHitGround(D3DXVECTOR3 pos, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Norm
 
 bool RayHitGroundWall(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal, int id)
 {
+	//for test
+	int raycastCount = 0;
+
 	forwardXY.y = 0.0f;
 	D3DXVec3Normalize(&forwardXY, &forwardXY);
 	D3DXVECTOR3 start = pos;
@@ -1622,7 +1676,8 @@ bool RayHitGroundWall(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitP
 
 	// 少し上から、ズドーンと下へレイを飛ばす
 	//start -= forwardXY * 50.0f;
-	end += forwardXY * 1000.0f;
+	float rayCastLen = 500.0f;
+	end += forwardXY * rayCastLen;
 	int ansI = -1;
 	float NDis = 0.0f;
 	bool firstFindNDis = false;
@@ -1636,6 +1691,10 @@ bool RayHitGroundWall(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitP
 		D3DXVec3TransformCoord(&p0, &p0, &mtxWorld);
 		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
 		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
+
+		if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
+		if (p0.y < pos.y && p1.y < pos.y && p2.y < pos.y) continue;
+		raycastCount++;
 
 		bool ans = RayCast(p0, p1, p2, start, end, &HitPositionTemp, &NormalTemp, caculatedNormal[i]);
 		if (ans) {
@@ -1665,6 +1724,8 @@ bool RayHitGroundWall(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitP
 			//PrintDebugProc("Wall: normalX: %f normalY: %f normalZ: %f\n", Normal->x, Normal->y, Normal->z);
 			//PrintDebugProc("i: %d\n", ansI);
 		}
+		PrintDebugProc("Ground: IndexNum: %d VertexNum: %d\n", model.IndexNum, model.VertexNum);
+		PrintDebugProc("Grouind Wall RaycastCount: %d\n", raycastCount);
 		return true;
 	}
 
@@ -1673,6 +1734,9 @@ bool RayHitGroundWall(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitP
 
 bool RayHit(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D3DXVECTOR3 * Normal, int id, float dis)
 {
+	// for test
+	int raycastCount = 0;
+
 	D3DXVec3Normalize(&forwardXY, &forwardXY);
 	D3DXVECTOR3 start = pos;
 	D3DXVECTOR3 end = pos;
@@ -1714,10 +1778,17 @@ bool RayHit(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D
 		p1 = model.Vertexlist[model.Indexlist[i + 1]];
 		p2 = model.Vertexlist[model.Indexlist[i + 2]];
 
-
 		D3DXVec3TransformCoord(&p0, &p0, &mtxWorld);
 		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
 		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
+
+		if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
+		D3DXVECTOR2 sPos = { pos.x, pos.z };
+		D3DXVECTOR2 sP0 = { p0.x,  p0.z };
+		D3DXVECTOR2 sP1 = { p1.x,  p1.z };
+		D3DXVECTOR2 sP2 = { p2.x,  p2.z };
+		if (PointInTriangle(sPos, sP0, sP1, sP2) == false)continue;
+		raycastCount++;
 
 		//bool ans = RayCast(p0, p1, p2, start, end, &HitPositionTemp, &NormalTemp, caculatedNormal[i]);
 		bool ans = RayCast(p0, p2, p1, start, end, &HitPositionTemp, &NormalTemp);
@@ -1842,4 +1913,27 @@ COLLIDER3D *GetCollider(void)
 void SetCollider3DEnable(int id, bool b)
 {
 	g_Collider3D[id].enable = b;
+}
+
+//=============================================================================
+// other
+//=============================================================================
+float sign(D3DXVECTOR2 p1, D3DXVECTOR2 p2, D3DXVECTOR2 p3)
+{
+	return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+}
+
+bool PointInTriangle(D3DXVECTOR2 pt, D3DXVECTOR2 v1, D3DXVECTOR2 v2, D3DXVECTOR2 v3)
+{
+	float d1, d2, d3;
+	bool has_neg, has_pos;
+
+	d1 = sign(pt, v1, v2);
+	d2 = sign(pt, v2, v3);
+	d3 = sign(pt, v3, v1);
+
+	has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+	has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+	return !(has_neg && has_pos);
 }

@@ -141,8 +141,7 @@ void DrawGround(void)
 	DrawModel(&g_Model[GroundType_SandWorld]);
 	DrawModel(&g_Model[GroundType_SandWorld_D]);
 	DrawModel(&g_Model[GroundType_StoS]);
-	DrawModel(&g_Model[GroundType_SnowWorld
-]);
+	DrawModel(&g_Model[GroundType_SnowWorld]);
 
 	SetLightEnable(true);
 
