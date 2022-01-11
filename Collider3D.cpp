@@ -46,6 +46,7 @@ bool RayCast(D3DXVECTOR3 p0, D3DXVECTOR3 p1, D3DXVECTOR3 p2, D3DXVECTOR3 pos0, D
 
 float sign(D3DXVECTOR2 p1, D3DXVECTOR2 p2, D3DXVECTOR2 p3);
 bool PointInTriangle(D3DXVECTOR2 pt, D3DXVECTOR2 v1, D3DXVECTOR2 v2, D3DXVECTOR2 v3);
+bool IsInDistance(D3DXVECTOR3 p1, D3DXVECTOR3 p2, float DIS);
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
@@ -1513,12 +1514,12 @@ bool RayHitPlat(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPositio
 		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
 		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
 
-		if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
-		D3DXVECTOR2 sPos = { pos.x, pos.z };
-		D3DXVECTOR2 sP0 = { p0.x,  p0.z };
-		D3DXVECTOR2 sP1 = { p1.x,  p1.z };
-		D3DXVECTOR2 sP2 = { p2.x,  p2.z };
-		if (PointInTriangle(sPos, sP0, sP1, sP2) == false)continue;
+		//if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
+		//D3DXVECTOR2 sPos = { pos.x, pos.z };
+		//D3DXVECTOR2 sP0 = { p0.x,  p0.z };
+		//D3DXVECTOR2 sP1 = { p1.x,  p1.z };
+		//D3DXVECTOR2 sP2 = { p2.x,  p2.z };
+		//if (PointInTriangle(sPos, sP0, sP1, sP2) == false)continue;
 		raycastCount++;
 
 		//bool ans = RayCast(p0, p1, p2, start, end, &HitPositionTemp, &NormalTemp, caculatedNormal[i]);
@@ -1782,12 +1783,12 @@ bool RayHit(D3DXVECTOR3 pos, D3DXVECTOR3 forwardXY, D3DXVECTOR3 * HitPosition, D
 		D3DXVec3TransformCoord(&p1, &p1, &mtxWorld);
 		D3DXVec3TransformCoord(&p2, &p2, &mtxWorld);
 
-		if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
-		D3DXVECTOR2 sPos = { pos.x, pos.z };
-		D3DXVECTOR2 sP0 = { p0.x,  p0.z };
-		D3DXVECTOR2 sP1 = { p1.x,  p1.z };
-		D3DXVECTOR2 sP2 = { p2.x,  p2.z };
-		if (PointInTriangle(sPos, sP0, sP1, sP2) == false)continue;
+		//if (p0.y >= pos.y && p1.y >= pos.y && p2.y >= pos.y) continue;
+		//D3DXVECTOR2 sPos = { pos.x, pos.z };
+		//D3DXVECTOR2 sP0 = { p0.x,  p0.z };
+		//D3DXVECTOR2 sP1 = { p1.x,  p1.z };
+		//D3DXVECTOR2 sP2 = { p2.x,  p2.z };
+		//if (PointInTriangle(sPos, sP0, sP1, sP2) == false)continue;
 		raycastCount++;
 
 		//bool ans = RayCast(p0, p1, p2, start, end, &HitPositionTemp, &NormalTemp, caculatedNormal[i]);
@@ -1936,4 +1937,10 @@ bool PointInTriangle(D3DXVECTOR2 pt, D3DXVECTOR2 v1, D3DXVECTOR2 v2, D3DXVECTOR2
 	has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
 
 	return !(has_neg && has_pos);
+}
+
+bool IsInDistance(D3DXVECTOR3 p1, D3DXVECTOR3 p2, float DIS) {
+	D3DXVECTOR3 v = p1 - p2;
+	if ( D3DXVec3LengthSq(&v)  > DIS * DIS ) return false;
+	else return true;
 }
